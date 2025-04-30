@@ -32,7 +32,6 @@ ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
 90 Sham S2.vsi - 10x.tif,Cortex,1030000.000,37.000,38000000.000,10500.000
 
 ## Run
-'''bach
 javac -cp "lib/*" src/THIntensityMeasurementManualROI.java -d bin
 java -cp "bin;lib/*" THIntensityMeasurementManualROI
-'''
+```
