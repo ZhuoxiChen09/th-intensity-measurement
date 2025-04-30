@@ -54,3 +54,10 @@ ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
 90 Sham S2.vsi - 10x.tif,Left Striatum,2273332.741,69.860,158815025.309,27944.000
 90 Sham S2.vsi - 10x.tif,Left Cortex,960483.083,73.604,70694964.923,12439.000
 
+Timestamp: 2025-04-30 16:49:57
+ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
+94 0.5 S1.vsi - 10x.tif,Right Striatum,2459746.688,40.973,100784393.653,21634.000
+94 0.5 S1.vsi - 10x.tif,Right Cortex,1048187.509,32.062,33607220.847,7214.000
+94 0.5 S1.vsi - 10x.tif,Left Striatum,2254767.797,34.405,77575192.896,16652.000
+94 0.5 S1.vsi - 10x.tif,Left Cortex,1048187.509,29.813,31249963.605,6708.000
+
