@@ -46,5 +46,7 @@ example_image.tif,Left Cortex,1050681.000,39.339,41332880.000,11369.000
 ```
 
 *** Command
+```
 javac -cp "lib/*" src/THIntensityMeasurementManualROI.java -d bin
 java -cp "bin;lib/*" THIntensityMeasurementManualROI
+```
