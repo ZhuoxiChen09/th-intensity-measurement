@@ -1,2 +1,56 @@
 
 
+Timestamp: 2025-04-30 12:51:43
+ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
+90 Sham S2.vsi - 10x.tif,Striatum,2209181.912,67.629,149404321.712,42268.000
+90 Sham S2.vsi - 10x.tif,Cortex,1021525.716,38.536,39365854.332,11137.000
+
+Timestamp: 2025-04-30 12:59:30
+ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
+90 Sham S2.vsi - 10x.tif,Right Striatum,2260781.100,68.666,155237890.691,42916.000
+90 Sham S2.vsi - 10x.tif,Right Cortex,1045385.181,38.536,40285310.575,11137.000
+90 Sham S2.vsi - 10x.tif,Left Striatum,2260781.100,67.557,152731136.608,42223.000
+90 Sham S2.vsi - 10x.tif,Left Cortex,1045385.181,36.401,38053467.473,10520.000
+
+Timestamp: 2025-04-30 13:06:09
+ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
+90 Sham S2.vsi - 10x.tif,Right Striatum,2269861.286,66.845,151728423.707,41778.000
+90 Sham S2.vsi - 10x.tif,Right Cortex,1049583.859,39.253,41198890.290,11344.000
+90 Sham S2.vsi - 10x.tif,Left Striatum,2269861.286,66.262,150406456.494,41414.000
+90 Sham S2.vsi - 10x.tif,Left Cortex,1049583.859,36.467,38275308.953,10539.000
+
+Timestamp: 2025-04-30 13:16:12
+ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
+23 Sham S1.vsi - 10x.tif,Right Striatum,2293669.011,87.589,200899814.883,42393.000
+23 Sham S1.vsi - 10x.tif,Right Cortex,71084.783,37.267,2649092.929,559.000
+23 Sham S1.vsi - 10x.tif,Left Striatum,2293669.011,47.254,108385338.763,22871.000
+23 Sham S1.vsi - 10x.tif,Left Cortex,1066271.751,50.036,53351499.445,11258.000
+
+Timestamp: 2025-04-30 13:19:23
+ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
+90 Sham S2.vsi - 10x.tif,Right Striatum,2760000.000,54.575,150626666.667,33891.000
+90 Sham S2.vsi - 10x.tif,Right Cortex,1000000.000,49.351,49351111.111,11104.000
+90 Sham S2.vsi - 10x.tif,Left Striatum,2351111.111,42.115,99017777.778,22279.000
+90 Sham S2.vsi - 10x.tif,Left Cortex,1000000.000,39.813,39813333.333,8958.000
+
+Timestamp: 2025-04-30 13:22:26
+ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
+49 0.5 S1.vsi - 10x.tif,Right Striatum,2293577.982,71.227,163365137.615,44517.000
+49 0.5 S1.vsi - 10x.tif,Right Cortex,4051376.147,44.799,181497247.706,49458.000
+49 0.5 S1.vsi - 10x.tif,Left Striatum,2293577.982,28.525,65423853.211,17828.000
+49 0.5 S1.vsi - 10x.tif,Left Cortex,1060550.459,23.270,24678899.083,6725.000
+
+Timestamp: 2025-04-30 13:35:50
+ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
+94 0.5 S1.vsi - 10x.tif,Right Striatum,2223402.703,51.992,115600128.426,27504.000
+94 0.5 S1.vsi - 10x.tif,Right Cortex,945681.679,28.702,27143165.699,6458.000
+94 0.5 S1.vsi - 10x.tif,Left Striatum,2223402.703,58.382,129806368.757,30884.000
+94 0.5 S1.vsi - 10x.tif,Left Cortex,945681.679,31.244,29547298.678,7030.000
+
+Timestamp: 2025-04-30 13:44:27
+ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity
+90 Sham S2.vsi - 10x.tif,Right Striatum,2273332.741,61.215,139162063.760,24486.000
+90 Sham S2.vsi - 10x.tif,Right Cortex,960483.083,43.698,41971405.737,7385.000
+90 Sham S2.vsi - 10x.tif,Left Striatum,2273332.741,69.860,158815025.309,27944.000
+90 Sham S2.vsi - 10x.tif,Left Cortex,960483.083,73.604,70694964.923,12439.000
+
