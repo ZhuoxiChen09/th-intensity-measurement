@@ -5,7 +5,7 @@ It enables consistent region-of-interest (ROI) placement and scale calibration b
 
 ---
 
-## ✅ Features
+## Features
 
 - Waits for user to manually open the desired TIFF image.
 - Sets scale to **8000 µm** based on a drawn horizontal line (no dummy measurement).
@@ -20,7 +20,7 @@ It enables consistent region-of-interest (ROI) placement and scale calibration b
 
 ---
 
-## 🧪 Measurement Workflow
+## Measurement Workflow
 
 1. **Open the TIFF image** manually in ImageJ.
 2. **Draw a horizontal line** across the full width of the brain.
@@ -34,7 +34,7 @@ It enables consistent region-of-interest (ROI) placement and scale calibration b
 
 ---
 
-## 📦 Output Format
+## Output Format
 
 ```csv
 Timestamp: 2025-04-30 15:32:10
