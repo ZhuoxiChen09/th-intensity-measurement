@@ -7,9 +7,9 @@
  * -----------------------------------------------------------------------------
  *  Description:
  *  This ImageJ/Java plugin automates tyrosine hydroxylase (TH) intensity
- *  quantification in MitoPark mouse brain slices. It provides a semi-automated
- *  workflow that standardizes ROI placement, scale calibration, and CSV export
- *  for dopaminergic neuron integrity analysis.
+ *  quantification in MitoPark mouse brain slices. It provides a
+ *  semi-automated workflow that standardizes ROI placement, scale
+ *  calibration, and CSV export for dopaminergic neuron integrity analysis.
  *
  *  Workflow Summary:
  *   - Waits for user to open a TIFF brain slice image.
@@ -49,36 +49,64 @@ import java.util.Date;
 /**
  * THIntensityMeasurementManualROI
  * 
- * This ImageJ plugin automates the measurement of tyrosine hydroxylase (TH)
- * intensity in MitoPark mouse brain slices using manually placed ROIs.
+ * This ImageJ plugin automates the measurement of tyrosine hydroxylase
+ * (TH) intensity in MitoPark mouse brain slices using manually placed
+ * ROIs.
  */
 public class THIntensityMeasurementManualROI {
+
+    // Configuration constants - modify these values to adjust ROI
+    // placement and sizing
+    private static final String OUTPUT_CSV_FILENAME =
+        "TH_Intensity_Results.csv";
+    private static final int WAIT_INTERVAL_MS = 500;
+    
+    // Scale calibration (in micrometers)
+    private static final double SCALE_CALIBRATION_UM = 8000.0;
+    
+    // ROI dimensions (in micrometers)
+    private static final double STRIATUM_ROI_SIZE_UM = 1500.0;
+    private static final double CORTEX_ROI_SIZE_UM = 1000.0;
+    
+    // ROI position offsets from center (in micrometers)
+    private static final double RIGHT_REGION_X_OFFSET_UM = 500.0;
+    private static final double LEFT_REGION_X_OFFSET_UM = 1500.0;
+    private static final double STRIATUM_Y_OFFSET_UM = 300.0;
+    private static final double CORTEX_Y_OFFSET_UM = 400.0;
 
     public static void main(String[] args) {
         new ij.ImageJ();
 
         // Prepare CSV file for output
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter("TH_Intensity_Results.csv", true));
-            String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            PrintWriter writer = new PrintWriter(
+                new FileWriter(OUTPUT_CSV_FILENAME, true));
+            String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new Date());
             writer.println("Timestamp: " + timeStamp);
-            writer.println("ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity");
+            writer.println(
+                "ImageName,Region,Area,Mean,IntegratedDensity," +
+                "RawIntegratedDensity");
 
             // Wait for user to open an image
-            IJ.log("Please open the desired TIFF image in ImageJ first.");
+            IJ.log("Please open the desired TIFF image in ImageJ " +
+                "first.");
 
             ImagePlus imp = null;
             while (imp == null) {
-                IJ.showStatus("Waiting for image... Please open your TIFF image in ImageJ.");
+                IJ.showStatus(
+                    "Waiting for image... Please open your TIFF image " +
+                    "in ImageJ.");
                 imp = WindowManager.getCurrentImage();
-                IJ.wait(500);
+                IJ.wait(WAIT_INTERVAL_MS);
             }
             // Image is now open
             IJ.log("Image detected: " + imp.getTitle());
             imp.show();
 
             // Prompt user to draw horizontal line for scale
-            IJ.log("STEP 1: Draw a horizontal line across the entire brain width (from left to right).");
+            IJ.log("STEP 1: Draw a horizontal line across the entire " +
+                "brain width (from left to right).");
             IJ.log("Press ENTER when done.");
 
             final Object lock = new Object();
@@ -105,7 +133,8 @@ public class THIntensityMeasurementManualROI {
             // Retrieve the drawn line ROI
             Roi line = imp.getRoi();
             if (line == null || !line.isLine()) {
-                IJ.error("You must draw a horizontal line ROI before pressing ENTER.");
+                IJ.error("You must draw a horizontal line ROI before " +
+                    "pressing ENTER.");
                 System.exit(1);
             }
 
@@ -117,31 +146,51 @@ public class THIntensityMeasurementManualROI {
             double xCenter = (x1 + x2) / 2;
             double yCenter = (y1 + y2) / 2;
 
-            // Set scale based on 8000 µm
-            IJ.run("Set Scale...", "known=8000 unit=\u00b5m pixel=1");
+            // Set scale based on calibration distance
+            IJ.run("Set Scale...",
+                "known=" + SCALE_CALIBRATION_UM +
+                " unit=\u00b5m pixel=1");
             imp.killRoi();
 
             Calibration cal = imp.getCalibration();
             double pixelPerMicron = cal.pixelWidth;
 
             // Define ROI sizes in pixels
-            int widthStriatum = (int) Math.round(1500 / pixelPerMicron);
+            int widthStriatum = (int) Math.round(
+                STRIATUM_ROI_SIZE_UM / pixelPerMicron);
             int heightStriatum = widthStriatum;
-            int widthCortex = (int) Math.round(1000 / pixelPerMicron);
+            int widthCortex = (int) Math.round(
+                CORTEX_ROI_SIZE_UM / pixelPerMicron);
             int heightCortex = widthCortex;
 
-            IJ.run("Set Measurements...", "area mean integrated raw redirect=None decimal=3");
+            IJ.run("Set Measurements...",
+                "area mean integrated raw redirect=None " +
+                "decimal=3");
 
             // Measure each region
-            measureRegion(imp, writer, "Right Striatum", (int)(xCenter + 500 / pixelPerMicron), (int)(yCenter + 300 / pixelPerMicron), widthStriatum, heightStriatum);
-            measureRegion(imp, writer, "Right Cortex", (int)(xCenter + 500 / pixelPerMicron), (int)(yCenter - 400 / pixelPerMicron), widthCortex, heightCortex);
-            measureRegion(imp, writer, "Left Striatum", (int)(xCenter - 1500 / pixelPerMicron), (int)(yCenter + 300 / pixelPerMicron), widthStriatum, heightStriatum);
-            measureRegion(imp, writer, "Left Cortex", (int)(xCenter - 1500 / pixelPerMicron), (int)(yCenter - 400 / pixelPerMicron), widthCortex, heightCortex);
+            measureRegion(imp, writer, "Right Striatum",
+                (int)(xCenter + RIGHT_REGION_X_OFFSET_UM / pixelPerMicron),
+                (int)(yCenter + STRIATUM_Y_OFFSET_UM / pixelPerMicron),
+                widthStriatum, heightStriatum);
+            measureRegion(imp, writer, "Right Cortex",
+                (int)(xCenter + RIGHT_REGION_X_OFFSET_UM / pixelPerMicron),
+                (int)(yCenter - CORTEX_Y_OFFSET_UM / pixelPerMicron),
+                widthCortex, heightCortex);
+            measureRegion(imp, writer, "Left Striatum",
+                (int)(xCenter - LEFT_REGION_X_OFFSET_UM / pixelPerMicron),
+                (int)(yCenter + STRIATUM_Y_OFFSET_UM / pixelPerMicron),
+                widthStriatum, heightStriatum);
+            measureRegion(imp, writer, "Left Cortex",
+                (int)(xCenter - LEFT_REGION_X_OFFSET_UM / pixelPerMicron),
+                (int)(yCenter - CORTEX_Y_OFFSET_UM / pixelPerMicron),
+                widthCortex, heightCortex);
 
             writer.println();
             writer.close();
 
-            IJ.showMessage("Done!", "All four regions measured and saved to CSV. Exiting ImageJ.");
+            IJ.showMessage("Done!",
+                "All four regions measured and saved to CSV. " +
+                "Exiting ImageJ.");
             IJ.run("Quit");
             System.exit(0);
 
@@ -160,8 +209,12 @@ public class THIntensityMeasurementManualROI {
      * @param width
      * @param height
      */
-    private static void measureRegion(ImagePlus imp, PrintWriter writer, String region, int x, int y, int width, int height) {
-        IJ.log("STEP: A fixed-size box for " + region + " has been created. Please move the box to the correct location (do NOT resize it), then press 'M' to record the measurement.");
+    private static void measureRegion(ImagePlus imp, PrintWriter writer,
+            String region, int x, int y, int width, int height) {
+        IJ.log("STEP: A fixed-size box for " + region +
+            " has been created. Please move the box to the correct " +
+            "location (do NOT resize it), then press 'M' to record " +
+            "the measurement.");
         imp.setRoi(new Roi(x, y, width, height));
         waitForManualMeasure();
 
@@ -182,8 +235,9 @@ public class THIntensityMeasurementManualROI {
      */
     private static void waitForManualMeasure() {
         int initialRows = ResultsTable.getResultsTable().size();
-        while (ResultsTable.getResultsTable().size() <= initialRows) {
-            IJ.wait(500);
+        while (ResultsTable.getResultsTable().size() <=
+                initialRows) {
+            IJ.wait(WAIT_INTERVAL_MS);
         }
     }
 }

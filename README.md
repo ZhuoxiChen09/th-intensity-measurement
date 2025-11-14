@@ -1,7 +1,80 @@
 # TH Intensity Measurement Tool (Manual ROI via ImageJ + Java)
 
-This Java-based ImageJ plugin allows semi-automated TH signal intensity measurement from brain slice images.  
-It enables consistent region-of-interest (ROI) placement and scale calibration based on user input.
+This Java-based ImageJ plugin allows semi-automated TH signal intensity
+measurement from brain slice images. It enables consistent
+region-of-interest (ROI) placement and scale calibration based on user
+input.
+
+---
+
+## Requirements
+
+- **Java SE 8 or higher** (JDK required for compilation)
+- **ImageJ library** (`ij.jar`) - included in the `lib/` directory
+- **ImageJ/Fiji** - The plugin launches ImageJ automatically when run
+
+---
+
+## Project Structure
+
+```
+leutgeb_lab/
+├── src/                          # Source code
+│   └── THIntensityMeasurementManualROI.java
+├── lib/                          # Dependencies
+│   └── ij.jar                    # ImageJ library (required)
+├── bin/                          # Compiled classes (generated)
+└── tifOG/                        # Sample TIFF images
+```
+
+---
+
+## Building and Running
+
+### Compilation
+
+Compile the Java source file with the ImageJ library in the classpath:
+
+**Windows:**
+```bash
+javac -cp "lib/*" src/THIntensityMeasurementManualROI.java -d bin
+```
+
+**Unix/Linux/macOS:**
+```bash
+javac -cp "lib/*" src/THIntensityMeasurementManualROI.java -d bin
+```
+
+### Execution
+
+Run the compiled program with the ImageJ library in the classpath:
+
+**Windows:**
+```bash
+java -cp "bin;lib/*" THIntensityMeasurementManualROI
+```
+
+**Unix/Linux/macOS:**
+```bash
+java -cp "bin:lib/*" THIntensityMeasurementManualROI
+```
+
+**Note:** The difference between Windows and Unix-like systems is the
+path separator:
+- Windows uses semicolon (`;`) to separate paths
+- Unix/Linux/macOS uses colon (`:`) to separate paths
+
+### Quick Start (One-liner)
+
+**Windows:**
+```bash
+javac -cp "lib/*" src/THIntensityMeasurementManualROI.java -d bin && java -cp "bin;lib/*" THIntensityMeasurementManualROI
+```
+
+**Unix/Linux/macOS:**
+```bash
+javac -cp "lib/*" src/THIntensityMeasurementManualROI.java -d bin && java -cp "bin:lib/*" THIntensityMeasurementManualROI
+```
 
 ---
 
@@ -45,8 +118,46 @@ example_image.tif,Left Striatum,2272235.000,66.796,149505855.000,41123.000
 example_image.tif,Left Cortex,1050681.000,39.339,41332880.000,11369.000
 ```
 
-*** Command
-```
-javac -cp "lib/*" src/THIntensityMeasurementManualROI.java -d bin
-java -cp "bin;lib/*" THIntensityMeasurementManualROI
-```
+---
+
+## Dependencies
+
+This project requires the **ImageJ library** (`ij.jar`) which is included
+in the `lib/` directory. The `ij.jar` file provides the ImageJ API classes
+used by the plugin:
+
+- `ij.IJ` - ImageJ main class for running commands
+- `ij.ImagePlus` - Image representation
+- `ij.gui.Roi` - Region of Interest handling
+- `ij.measure.ResultsTable` - Measurement results
+- `ij.measure.Calibration` - Image calibration/scaling
+
+If you need to update or replace `ij.jar`, download it from the
+[ImageJ website](https://imagej.nih.gov/ij/download.html) and place it in
+the `lib/` directory.
+
+---
+
+## Troubleshooting
+
+### ClassNotFoundException or NoClassDefFoundError
+
+If you encounter errors about missing ImageJ classes, ensure:
+1. The `ij.jar` file exists in the `lib/` directory
+2. The classpath includes `lib/*` or `lib/ij.jar` when compiling and
+   running
+3. You're using the correct path separator (`;` for Windows, `:` for
+   Unix/Linux/macOS)
+
+### ImageJ Window Not Appearing
+
+The plugin automatically launches ImageJ. If the window doesn't appear:
+1. Check that Java is properly installed (`java -version`)
+2. Ensure you have sufficient system resources
+3. Check console output for error messages
+
+---
+
+## License
+
+MIT License © 2025 Zhuoxi (Derrick) Chen
