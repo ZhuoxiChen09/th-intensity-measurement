@@ -1,19 +1,12 @@
-# TH Intensity Measurement Tool (Manual ROI via ImageJ + Java)
+# TH Intensity Measurement Tool
 
-This Java-based ImageJ plugin allows semi-automated TH signal intensity
-measurement from brain slice images. It enables consistent
-region-of-interest (ROI) placement and scale calibration based on user
-input.
-
----
+A Java-based ImageJ plugin for semi-automated tyrosine hydroxylase (TH) signal intensity measurement from brain slice images. Enables consistent region-of-interest (ROI) placement and scale calibration.
 
 ## Requirements
 
-- **Java SE 8 or higher** (JDK required for compilation)
-- **ImageJ library** (`ij.jar`) - included in the `lib/` directory
-- **ImageJ/Fiji** - The plugin launches ImageJ automatically when run
-
----
+- Java SE 8 or higher (JDK required for compilation)
+- ImageJ library included in `lib/` directory
+- ImageJ/Fiji (launched automatically by the plugin)
 
 ## Project Structure
 
@@ -27,13 +20,9 @@ leutgeb_lab/
 └── tifOG/                        # Sample TIFF images
 ```
 
----
-
 ## Building and Running
 
 ### Compilation
-
-Compile the Java source file with the ImageJ library in the classpath:
 
 **Windows:**
 ```bash
@@ -47,8 +36,6 @@ javac -cp "lib/*" src/THIntensityMeasurementManualROI.java -d bin
 
 ### Execution
 
-Run the compiled program with the ImageJ library in the classpath:
-
 **Windows:**
 ```bash
 java -cp "bin;lib/*" THIntensityMeasurementManualROI
@@ -59,12 +46,9 @@ java -cp "bin;lib/*" THIntensityMeasurementManualROI
 java -cp "bin:lib/*" THIntensityMeasurementManualROI
 ```
 
-**Note:** The difference between Windows and Unix-like systems is the
-path separator:
-- Windows uses semicolon (`;`) to separate paths
-- Unix/Linux/macOS uses colon (`:`) to separate paths
+Note: Path separators differ between Windows (`;`) and Unix/Linux/macOS (`:`)
 
-### Quick Start (One-liner)
+### Quick Start
 
 **Windows:**
 ```bash
@@ -80,30 +64,30 @@ javac -cp "lib/*" src/THIntensityMeasurementManualROI.java -d bin && java -cp "b
 
 ## Features
 
-- Waits for user to manually open the desired TIFF image.
-- Sets scale to **8000 µm** based on a drawn horizontal line (no dummy measurement).
-- Detects **Enter key** to proceed after the line is drawn.
+- Waits for user to manually open the desired TIFF image
+- Sets scale to 8000 µm based on a drawn horizontal line
+- Detects Enter key to proceed after calibration
 - Automatically places four fixed-size ROIs:
   - Right Striatum (1500×1500 µm)
   - Right Cortex (1000×1000 µm)
   - Left Striatum (1500×1500 µm)
   - Left Cortex (1000×1000 µm)
-- Allows manual adjustment (movement only) of ROIs before measuring.
-- Exports all data to a structured CSV file: `TH_Intensity_Results.csv`.
+- Allows manual ROI adjustment before measurement
+- Exports results to structured CSV format
 
 ---
 
 ## Measurement Workflow
 
-1. **Open the TIFF image** manually in ImageJ.
-2. **Draw a horizontal line** across the full width of the brain.
-3. **Press the Enter key** (↵) to confirm and set the image scale to 8000 µm.
-4. The program places a fixed-size ROI for:
-   - Right Striatum → press `M` to measure
-   - Right Cortex → press `M` to measure
-   - Left Striatum → press `M` to measure
-   - Left Cortex → press `M` to measure
-5. All results are appended to the CSV and ImageJ closes automatically.
+1. Open the TIFF image manually in ImageJ
+2. Draw a horizontal line across the full width of the brain
+3. Press Enter to confirm and set the image scale to 8000 µm
+4. The program automatically places ROIs for:
+   - Right Striatum → press M to measure
+   - Right Cortex → press M to measure
+   - Left Striatum → press M to measure
+   - Left Cortex → press M to measure
+5. Results are appended to the CSV and ImageJ closes automatically
 
 ---
 
@@ -122,39 +106,27 @@ example_image.tif,Left Cortex,1050681.000,39.339,41332880.000,11369.000
 
 ## Dependencies
 
-This project requires the **ImageJ library** (`ij.jar`) which is included
-in the `lib/` directory. The `ij.jar` file provides the ImageJ API classes
-used by the plugin:
+This project requires the ImageJ library (`ij.jar`), which is included in the `lib/` directory. The library provides:
+- ImageJ API classes for image processing
+- ROI (Region of Interest) handling
+- Measurement and calibration utilities
 
-- `ij.IJ` - ImageJ main class for running commands
-- `ij.ImagePlus` - Image representation
-- `ij.gui.Roi` - Region of Interest handling
-- `ij.measure.ResultsTable` - Measurement results
-- `ij.measure.Calibration` - Image calibration/scaling
-
-If you need to update or replace `ij.jar`, download it from the
-[ImageJ website](https://imagej.nih.gov/ij/download.html) and place it in
-the `lib/` directory.
-
----
+To update the library, download from [ImageJ website](https://imagej.nih.gov/ij/download.html) and replace in `lib/` directory.
 
 ## Troubleshooting
 
-### ClassNotFoundException or NoClassDefFoundError
+### ClassNotFoundException or Missing ImageJ Classes
 
-If you encounter errors about missing ImageJ classes, ensure:
-1. The `ij.jar` file exists in the `lib/` directory
-2. The classpath includes `lib/*` or `lib/ij.jar` when compiling and
-   running
-3. You're using the correct path separator (`;` for Windows, `:` for
-   Unix/Linux/macOS)
+Ensure:
+- `ij.jar` exists in the `lib/` directory
+- Classpath includes `lib/*` or `lib/ij.jar` during compilation and execution
+- Correct path separator is used (`;` for Windows, `:` for Unix/Linux/macOS)
 
 ### ImageJ Window Not Appearing
 
-The plugin automatically launches ImageJ. If the window doesn't appear:
-1. Check that Java is properly installed (`java -version`)
-2. Ensure you have sufficient system resources
-3. Check console output for error messages
+- Verify Java is properly installed
+- Ensure sufficient system resources
+- Check console output for error messages
 
 ---
 
