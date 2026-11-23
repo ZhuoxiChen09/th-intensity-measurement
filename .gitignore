@@ -1,0 +1,5 @@
+bin/
+build/
+*.class
+TH_Intensity_Results.csv
+.DS_Store
