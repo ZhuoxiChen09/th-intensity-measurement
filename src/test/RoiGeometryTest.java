@@ -1,3 +1,8 @@
+import ij.ImagePlus;
+import ij.gui.Line;
+import ij.measure.Calibration;
+import ij.process.ByteProcessor;
+
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -7,6 +12,17 @@ import java.util.Arrays;
 
 public final class RoiGeometryTest {
     public static void main(String[] args) throws IOException {
+        ImagePlus image = new ImagePlus("synthetic", new ByteProcessor(64, 64));
+        Calibration calibration = new Calibration(image);
+        calibration.pixelWidth = 2.0;
+        calibration.setUnit("um");
+        image.setCalibration(calibration);
+        Line line = new Line(10, 10, 50, 10);
+        image.setRoi(line);
+        assert line.getLength() == 80.0;
+        String scaleOptions = THIntensityMeasurementManualROI.scaleOptions(line);
+        assert scaleOptions.startsWith("distance=40.0 known=8000.0 ") : scaleOptions;
+
         Rectangle[] expected = {
             new Rectangle(1062, 547, 188, 188),
             new Rectangle(1062, 460, 125, 125),
@@ -38,6 +54,6 @@ public final class RoiGeometryTest {
         } finally {
             Files.delete(csv);
         }
-        System.out.println("ROI geometry and CSV header checks passed.");
+        System.out.println("Calibration, ROI geometry, and CSV header checks passed.");
     }
 }

@@ -32,6 +32,7 @@
  */
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.Line;
 import ij.gui.Roi;
 import ij.gui.ImageWindow;
 import ij.measure.ResultsTable;
@@ -133,14 +134,18 @@ public class THIntensityMeasurementManualROI {
             }
 
             // Retrieve the drawn line ROI
-            Roi line = imp.getRoi();
-            if (line == null || !line.isLine()) {
-                IJ.error("You must draw a horizontal line ROI before " +
-                    "pressing ENTER.");
+            Roi calibrationRoi = imp.getRoi();
+            if (!(calibrationRoi instanceof Line)) {
+                IJ.error("Draw a straight line ROI before pressing ENTER.");
+                return;
+            }
+            Line line = (Line) calibrationRoi;
+            if (line.getRawLength() == 0) {
+                IJ.error("Draw a calibration line with distinct endpoints.");
                 return;
             }
 
-            // Calculate center point of the line
+            // Read the line endpoints for ROI geometry and the angle warning.
             double x1 = line.getFloatPolygon().xpoints[0];
             double y1 = line.getFloatPolygon().ypoints[0];
             double x2 = line.getFloatPolygon().xpoints[1];
@@ -152,9 +157,7 @@ public class THIntensityMeasurementManualROI {
             }
 
             // Set scale based on calibration distance
-            IJ.run("Set Scale...",
-                "distance=" + line.getLength() + " known=" + SCALE_CALIBRATION_UM +
-                " pixel=1 unit=\u00b5m");
+            IJ.run("Set Scale...", scaleOptions(line));
             imp.killRoi();
 
             Calibration cal = imp.getCalibration();
@@ -180,6 +183,12 @@ public class THIntensityMeasurementManualROI {
             "All four regions measured and saved to CSV. Exiting ImageJ.");
         IJ.run("Quit");
         System.exit(0);
+    }
+
+    static String scaleOptions(Line line) {
+        // Set Scale expects a pixel distance even when the image is already calibrated.
+        return "distance=" + line.getRawLength() + " known=" + SCALE_CALIBRATION_UM +
+            " pixel=1 unit=\u00b5m";
     }
 
     static Rectangle[] roiRectangles(double x1, double y1, double x2, double y2,
