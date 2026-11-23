@@ -38,13 +38,19 @@ import ij.measure.ResultsTable;
 import ij.measure.Calibration;
 import ij.WindowManager;
 
+import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.FileWriter;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * THIntensityMeasurementManualROI
@@ -59,6 +65,8 @@ public class THIntensityMeasurementManualROI {
     // placement and sizing
     private static final String OUTPUT_CSV_FILENAME =
         "TH_Intensity_Results.csv";
+    private static final String CSV_HEADER =
+        "ImageName,Region,Area,Mean,IntegratedDensity,RawIntegratedDensity,Timestamp";
     private static final int WAIT_INTERVAL_MS = 500;
     
     // Scale calibration (in micrometers)
@@ -77,16 +85,10 @@ public class THIntensityMeasurementManualROI {
     public static void main(String[] args) {
         new ij.ImageJ();
 
-        // Prepare CSV file for output
-        try {
-            PrintWriter writer = new PrintWriter(
-                new FileWriter(OUTPUT_CSV_FILENAME, true));
-            String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        Path csvPath = Paths.get(OUTPUT_CSV_FILENAME);
+        try (PrintWriter writer = openCsv(csvPath)) {
+            String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
                 .format(new Date());
-            writer.println("Timestamp: " + timeStamp);
-            writer.println(
-                "ImageName,Region,Area,Mean,IntegratedDensity," +
-                "RawIntegratedDensity");
 
             // Wait for user to open an image
             IJ.log("Please open the desired TIFF image in ImageJ " +
@@ -135,7 +137,7 @@ public class THIntensityMeasurementManualROI {
             if (line == null || !line.isLine()) {
                 IJ.error("You must draw a horizontal line ROI before " +
                     "pressing ENTER.");
-                System.exit(1);
+                return;
             }
 
             // Calculate center point of the line
@@ -143,79 +145,85 @@ public class THIntensityMeasurementManualROI {
             double y1 = line.getFloatPolygon().ypoints[0];
             double x2 = line.getFloatPolygon().xpoints[1];
             double y2 = line.getFloatPolygon().ypoints[1];
-            double xCenter = (x1 + x2) / 2;
-            double yCenter = (y1 + y2) / 2;
+            double lineAngle = Math.toDegrees(
+                Math.atan2(Math.abs(y2 - y1), Math.abs(x2 - x1)));
+            if (lineAngle > 5.0) {
+                IJ.log("Warning: the calibration line is more than 5 degrees from horizontal.");
+            }
 
             // Set scale based on calibration distance
             IJ.run("Set Scale...",
-                "known=" + SCALE_CALIBRATION_UM +
-                " unit=\u00b5m pixel=1");
+                "distance=" + line.getLength() + " known=" + SCALE_CALIBRATION_UM +
+                " pixel=1 unit=\u00b5m");
             imp.killRoi();
 
             Calibration cal = imp.getCalibration();
-            double pixelPerMicron = cal.pixelWidth;
-
-            // Define ROI sizes in pixels
-            int widthStriatum = (int) Math.round(
-                STRIATUM_ROI_SIZE_UM / pixelPerMicron);
-            int heightStriatum = widthStriatum;
-            int widthCortex = (int) Math.round(
-                CORTEX_ROI_SIZE_UM / pixelPerMicron);
-            int heightCortex = widthCortex;
+            double micronsPerPixel = cal.pixelWidth;
+            Rectangle[] rectangles = roiRectangles(x1, y1, x2, y2, micronsPerPixel);
+            String[] regions = {"Right Striatum", "Right Cortex", "Left Striatum", "Left Cortex"};
 
             IJ.run("Set Measurements...",
                 "area mean integrated raw redirect=None " +
                 "decimal=3");
 
-            // Measure each region
-            measureRegion(imp, writer, "Right Striatum",
-                (int)(xCenter + RIGHT_REGION_X_OFFSET_UM / pixelPerMicron),
-                (int)(yCenter + STRIATUM_Y_OFFSET_UM / pixelPerMicron),
-                widthStriatum, heightStriatum);
-            measureRegion(imp, writer, "Right Cortex",
-                (int)(xCenter + RIGHT_REGION_X_OFFSET_UM / pixelPerMicron),
-                (int)(yCenter - CORTEX_Y_OFFSET_UM / pixelPerMicron),
-                widthCortex, heightCortex);
-            measureRegion(imp, writer, "Left Striatum",
-                (int)(xCenter - LEFT_REGION_X_OFFSET_UM / pixelPerMicron),
-                (int)(yCenter + STRIATUM_Y_OFFSET_UM / pixelPerMicron),
-                widthStriatum, heightStriatum);
-            measureRegion(imp, writer, "Left Cortex",
-                (int)(xCenter - LEFT_REGION_X_OFFSET_UM / pixelPerMicron),
-                (int)(yCenter - CORTEX_Y_OFFSET_UM / pixelPerMicron),
-                widthCortex, heightCortex);
-
-            writer.println();
-            writer.close();
-
-            IJ.showMessage("Done!",
-                "All four regions measured and saved to CSV. " +
-                "Exiting ImageJ.");
-            IJ.run("Quit");
-            System.exit(0);
-
+            for (int i = 0; i < regions.length; i++) {
+                measureRegion(imp, writer, regions[i], rectangles[i], timeStamp);
+            }
+            if (writer.checkError()) {
+                throw new IOException("Could not finish writing " + csvPath);
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            IJ.error(e.getMessage());
+            return;
         }
+        IJ.showMessage("Done!",
+            "All four regions measured and saved to CSV. Exiting ImageJ.");
+        IJ.run("Quit");
+        System.exit(0);
     }
 
-    /**
-     * measureRegion
-     * @param imp
-     * @param writer
-     * @param region
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     */
+    static Rectangle[] roiRectangles(double x1, double y1, double x2, double y2,
+            double micronsPerPixel) {
+        double xCenter = (x1 + x2) / 2;
+        double yCenter = (y1 + y2) / 2;
+        int striatumSize = (int) Math.round(STRIATUM_ROI_SIZE_UM / micronsPerPixel);
+        int cortexSize = (int) Math.round(CORTEX_ROI_SIZE_UM / micronsPerPixel);
+        int rightX = (int) (xCenter + RIGHT_REGION_X_OFFSET_UM / micronsPerPixel);
+        int leftX = (int) (xCenter - LEFT_REGION_X_OFFSET_UM / micronsPerPixel);
+        int striatumY = (int) (yCenter + STRIATUM_Y_OFFSET_UM / micronsPerPixel);
+        int cortexY = (int) (yCenter - CORTEX_Y_OFFSET_UM / micronsPerPixel);
+        return new Rectangle[] {
+            new Rectangle(rightX, striatumY, striatumSize, striatumSize),
+            new Rectangle(rightX, cortexY, cortexSize, cortexSize),
+            new Rectangle(leftX, striatumY, striatumSize, striatumSize),
+            new Rectangle(leftX, cortexY, cortexSize, cortexSize),
+        };
+    }
+
+    static PrintWriter openCsv(Path path) throws IOException {
+        boolean needsHeader = !Files.exists(path) || Files.size(path) == 0;
+        if (!needsHeader) {
+            try (BufferedReader reader = Files.newBufferedReader(path)) {
+                if (!CSV_HEADER.equals(reader.readLine())) {
+                    throw new IOException("Move the existing CSV to a different filename before appending: " + path);
+                }
+            }
+        }
+        PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path,
+            StandardOpenOption.CREATE, StandardOpenOption.APPEND));
+        if (needsHeader) {
+            writer.println(CSV_HEADER);
+        }
+        return writer;
+    }
+
     private static void measureRegion(ImagePlus imp, PrintWriter writer,
-            String region, int x, int y, int width, int height) {
+            String region, Rectangle bounds, String timeStamp) {
         IJ.log("STEP: A fixed-size box for " + region +
             " has been created. Please move the box to the correct " +
             "location (do NOT resize it), then press 'M' to record " +
             "the measurement.");
-        imp.setRoi(new Roi(x, y, width, height));
+        imp.setRoi(new Roi(bounds.x, bounds.y, bounds.width, bounds.height));
         waitForManualMeasure();
 
         ResultsTable rt = ResultsTable.getResultsTable();
@@ -225,8 +233,9 @@ public class THIntensityMeasurementManualROI {
         double intDen = rt.getValue("IntDen", lastRow);
         double rawIntDen = rt.getValue("RawIntDen", lastRow);
 
-        writer.printf("%s,%s,%.3f,%.3f,%.3f,%.3f\n",
-            imp.getTitle(), region, area, mean, intDen, rawIntDen);
+        String imageName = "\"" + imp.getTitle().replace("\"", "\"\"") + "\"";
+        writer.printf(Locale.ROOT, "%s,%s,%.3f,%.3f,%.3f,%.3f,%s%n",
+            imageName, region, area, mean, intDen, rawIntDen, timeStamp);
     }
     
     /**
